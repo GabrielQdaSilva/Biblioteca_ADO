@@ -1,207 +1,163 @@
 package ado;
 
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
-    private static VetorPokemon pokedex = new VetorPokemon(5);
-    private static Scanner scanner = new Scanner(System.in);
-    private static Random random = new Random(); // Random mantido!
-
     public static void main(String[] args) throws Exception {
-        boolean exit = false;
-        System.out.println("=== BEM-VINDO A POKEDEX ===");
 
-        while (!exit) {
-            System.out.println("\n--- MENU DA POKEDEX ---");
-            System.out.println("1 - Incluir novo Pokemon");
-            System.out.println("2 - Pesquisar Pokemon");
-            System.out.println("3 - Alterar dados de Pokemon");
-            System.out.println("4 - Excluir Pokemon");
-            System.out.println("5 - Listar todos os Pokemon");
-            System.out.println("6 - Sair");
+        Scanner scanner = new Scanner(System.in);
+        VetorObjeto vetor = new VetorObjeto(5);
 
-            System.out.print("Escolha uma opcao: ");
-            String input = scanner.nextLine();
+        int opcao;
 
-            int choice = -1;
-            try {
-                choice = Integer.parseInt(input);
-            } catch (Exception e) {
-                System.out.println("Opcao invalida.");
-                continue;
-            }
+        do {
+            System.out.println("\n===== CADASTRO DE LIVROS =====");
+            System.out.println("1 - Incluir livro");
+            System.out.println("2 - Pesquisar livro (por ISBN)");
+            System.out.println("3 - Alterar livro");
+            System.out.println("4 - Excluir livro");
+            System.out.println("5 - Listar todos os livros");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha uma opção: ");
 
-            // Switch tradicional mantido
-            switch (choice) {
+            opcao = lerInteiro(scanner);
+
+            switch (opcao) {
+
                 case 1:
-                    includePokemon();
+                    incluir(scanner, vetor);
                     break;
-                case 2:
-                    searchPokemon();
-                    break;
-                case 3:
-                    alterPokemon();
-                    break;
-                case 4:
-                    excludePokemon();
-                    break;
-                case 5:
-                    listPokemon();
-                    break;
-                case 6:
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Opcao invalida. Escolha entre 1 e 6.");
-            }
-        }
 
-        System.out.println("Encerrando a Pokedex... Obrigado por usar!");
+                case 2:
+                    pesquisar(scanner, vetor);
+                    break;
+
+                case 3:
+                    alterar(scanner, vetor);
+                    break;
+
+                case 4:
+                    excluir(scanner, vetor);
+                    break;
+
+                case 5:
+                    System.out.println("Livros cadastrados (" + vetor.tamanho() + "): " + vetor.toString());
+                    break;
+
+                case 0:
+                    System.out.println("Encerrando o programa...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida! Tente novamente.");
+            }
+
+        } while (opcao != 0);
+
         scanner.close();
     }
 
-    private static void includePokemon() throws Exception {
-        System.out.println("\n--- INCLUIR NOVO POKEMON ---");
+    private static void incluir(Scanner scanner, VetorObjeto vetor) {
+        System.out.print("ISBN: ");
+        String isbn = scanner.nextLine();
 
-        // Geração do ID automático mantida
-        int id = generateUniqueRandomId();
-        if (id == -1) {
-            System.out.println("Nao foi possivel gerar um ID unico.");
+        System.out.print("Título: ");
+        String titulo = scanner.nextLine();
+
+        System.out.print("Autor: ");
+        String autor = scanner.nextLine();
+
+        System.out.print("Ano de publicação: ");
+        int ano = lerInteiro(scanner);
+
+        Livro livro = new Livro(isbn, titulo, autor, ano);
+
+        if (vetor.busca(livro) > -1) {
+            System.out.println("Já existe um livro cadastrado com esse ISBN.");
             return;
         }
 
-        System.out.print("Nome: ");
-        String nome = scanner.nextLine();
-        if (nome.trim().isEmpty()) {
-            System.out.println("Nome nao pode estar vazio.");
-            return;
-        }
-
-        System.out.print("Tipo: ");
-        String tipo = scanner.nextLine();
-        if (tipo.trim().isEmpty()) {
-            System.out.println("Tipo nao pode estar vazio.");
-            return;
-        }
-
-        Pokemon novoPokemon = new Pokemon(nome, tipo, id);
-        pokedex.adiciona(novoPokemon);
-        System.out.println("Pokemon incluido com sucesso! ID gerado: " + id);
+        vetor.adiciona(livro);
+        System.out.println("Livro incluído com sucesso!");
     }
 
-    private static int generateUniqueRandomId() {
-        for (int attempt = 0; attempt < 100; attempt++) {
-            int candidateId = random.nextInt(999) + 1;
-            if (!pokedex.existeId(candidateId)) {
-                return candidateId;
-            }
-        }
-        return -1; // Retorna -1 se não conseguir achar um ID livre após 100 tentativas
-    }
+    private static void pesquisar(Scanner scanner, VetorObjeto vetor) {
+        System.out.print("Informe o ISBN do livro que deseja pesquisar: ");
+        String isbn = scanner.nextLine();
 
-    private static void searchPokemon() throws Exception {
-        if (pokedex.tamanho() == 0) {
-            System.out.println("\nA Pokedex esta vazia.");
-            return;
-        }
+        Livro chave = new Livro();
+        chave.setIsbn(isbn);
 
-        System.out.println("\n--- PESQUISAR POKEMON ---");
-        System.out.println("1 - Por posicao no vetor");
-        System.out.println("2 - Por ID");
-        System.out.print("Escolha uma opcao: ");
-
-        int searchType = Integer.parseInt(scanner.nextLine());
-
-        if (searchType == 1) {
-            System.out.print("Digite a posicao (0 a " + (pokedex.tamanho() - 1) + "): ");
-            int posicao = Integer.parseInt(scanner.nextLine());
-            Pokemon p = pokedex.busca(posicao);
-            System.out.println("Pokemon encontrado: " + p.toString());
-
-        } else if (searchType == 2) {
-            System.out.print("Digite o ID: ");
-            int id = Integer.parseInt(scanner.nextLine());
-            Pokemon p = pokedex.buscaPorId(id);
-            if (p != null) {
-                System.out.println("Pokemon encontrado: " + p.toString());
-            } else {
-                System.out.println("Nenhum Pokemon encontrado com ID " + id);
-            }
-        } else {
-            System.out.println("Opcao invalida.");
-        }
-    }
-
-    private static void alterPokemon() throws Exception {
-        if (pokedex.tamanho() == 0) {
-            System.out.println("\nA Pokedex esta vazia.");
-            return;
-        }
-
-        System.out.println("\n--- ALTERAR POKEMON ---");
-        System.out.print("Digite o ID do Pokemon que deseja alterar: ");
-        int id = Integer.parseInt(scanner.nextLine());
-
-        Pokemon pokemonParaAlterar = pokedex.buscaPorId(id);
-
-        if (pokemonParaAlterar == null) {
-            System.out.println("Pokemon nao encontrado.");
-            return;
-        }
-
-        System.out.println("\nPokemon selecionado: " + pokemonParaAlterar.toString());
-
-        System.out.print("Novo nome (ou aperte Enter para manter '" + pokemonParaAlterar.getNome() + "'): ");
-        String novoNome = scanner.nextLine();
-        if (!novoNome.trim().isEmpty()) {
-            pokemonParaAlterar.setNome(novoNome);
-        }
-
-        System.out.print("Novo tipo (ou aperte Enter para manter '" + pokemonParaAlterar.getTipo() + "'): ");
-        String novoTipo = scanner.nextLine();
-        if (!novoTipo.trim().isEmpty()) {
-            pokemonParaAlterar.setTipo(novoTipo);
-        }
-
-        System.out.println("Pokemon alterado com sucesso! Novo: " + pokemonParaAlterar.toString());
-    }
-
-    private static void excludePokemon() throws Exception {
-        if (pokedex.tamanho() == 0) {
-            System.out.println("\nA Pokedex esta vazia.");
-            return;
-        }
-
-        System.out.println("\n--- EXCLUIR POKEMON ---");
-        System.out.print("Digite o ID do Pokemon a excluir: ");
-        int id = Integer.parseInt(scanner.nextLine());
-
-        int posicao = pokedex.buscaPorIdPosicao(id);
+        int posicao = vetor.busca(chave);
 
         if (posicao == -1) {
-            System.out.println("Nenhum Pokemon encontrado com ID " + id);
-            return;
-        }
-
-        pokedex.remove(posicao);
-        System.out.println("Excluido com sucesso!");
-    }
-
-    private static void listPokemon() {
-        if (pokedex.tamanho() == 0) {
-            System.out.println("\nA Pokedex esta vazia.");
-            return;
-        }
-
-        System.out.println("\n--- LISTA COMPLETA ---");
-        System.out.println("Total: " + pokedex.tamanho());
-        for (int i = 0; i < pokedex.tamanho(); i++) {
-            Pokemon p = pokedex.buscaPorPosicao(i);
-            if (p != null) {
-                System.out.println("[" + i + "] " + p.toString());
+            System.out.println("Livro não encontrado.");
+        } else {
+            try {
+                System.out.println("Livro encontrado: " + vetor.busca(posicao));
+            } catch (Exception e) {
+                System.out.println("Erro ao buscar o livro: " + e.getMessage());
             }
         }
+    }
+
+    private static void alterar(Scanner scanner, VetorObjeto vetor) {
+        System.out.print("Informe o ISBN do livro que deseja alterar: ");
+        String isbn = scanner.nextLine();
+
+        Livro chave = new Livro();
+        chave.setIsbn(isbn);
+
+        int posicao = vetor.busca(chave);
+
+        if (posicao == -1) {
+            System.out.println("Livro não encontrado.");
+            return;
+        }
+
+        System.out.print("Novo título: ");
+        String titulo = scanner.nextLine();
+
+        System.out.print("Novo autor: ");
+        String autor = scanner.nextLine();
+
+        System.out.print("Novo ano de publicação: ");
+        int ano = lerInteiro(scanner);
+
+        Livro livroAlterado = new Livro(isbn, titulo, autor, ano);
+
+        try {
+            vetor.remove(posicao);
+            vetor.adiciona(posicao, livroAlterado);
+            System.out.println("Livro alterado com sucesso!");
+        } catch (Exception e) {
+            System.out.println("Erro ao alterar o livro: " + e.getMessage());
+        }
+    }
+
+    private static void excluir(Scanner scanner, VetorObjeto vetor) {
+        System.out.print("Informe o ISBN do livro que deseja excluir: ");
+        String isbn = scanner.nextLine();
+
+        Livro chave = new Livro();
+        chave.setIsbn(isbn);
+
+        try {
+            vetor.remove(chave);
+            System.out.println("Livro excluído com sucesso!");
+        } catch (Exception e) {
+            System.out.println("Erro ao excluir o livro: " + e.getMessage());
+        }
+    }
+
+    private static int lerInteiro(Scanner scanner) {
+        while (!scanner.hasNextInt()) {
+            System.out.print("Digite um número válido: ");
+            scanner.next();
+        }
+        int valor = scanner.nextInt();
+        scanner.nextLine();
+        return valor;
     }
 }
