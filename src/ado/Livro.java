@@ -62,13 +62,8 @@ public class Livro {
     }
 
     @Override
-    public int hashCode() {
-        return this.isbn == null ? 0 : this.isbn.hashCode();
-    }
-
-    @Override
     public String toString() {
-        return "Livro{" + "isbn=" + isbn + ", titulo=" + titulo + ", autor=" + autor + ", anoPublicacao="
-                + anoPublicacao + '}';
+        return "Livro{ " + "isbn = " + isbn + ", titulo = " + titulo + ", autor = " + autor + ", anoPublicacao = "
+                + anoPublicacao + " }";
     }
 }

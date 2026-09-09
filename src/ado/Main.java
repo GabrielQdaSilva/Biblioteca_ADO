@@ -21,24 +21,74 @@ public class Main {
             System.out.println("0 - Sair");
             System.out.print("Escolha uma opção: ");
 
-            opcao = lerInteiro(scanner);
+            opcao = scanner.nextInt();
+            scanner.nextLine();
 
             switch (opcao) {
 
                 case 1:
-                    incluir(scanner, vetor);
+                    System.out.print("ISBN: ");
+                    String isbnIncluir = scanner.nextLine();
+
+                    System.out.print("Título: ");
+                    String tituloIncluir = scanner.nextLine();
+
+                    System.out.print("Autor: ");
+                    String autorIncluir = scanner.nextLine();
+
+                    System.out.print("Ano de publicação: ");
+                    int anoIncluir = scanner.nextInt();
+                    scanner.nextLine();
+
+                    vetor.adiciona(new Livro(isbnIncluir, tituloIncluir, autorIncluir, anoIncluir));
+                    System.out.println("Livro incluído com sucesso!");
                     break;
 
                 case 2:
-                    pesquisar(scanner, vetor);
+                    System.out.print("Informe o ISBN do livro que deseja pesquisar: ");
+                    String isbnPesquisar = scanner.nextLine();
+
+                    int posicaoPesquisar = vetor.busca(new Livro(isbnPesquisar, null, null, 0));
+
+                    if (posicaoPesquisar == -1) {
+                        System.out.println("Livro não encontrado.");
+                    } else {
+                        System.out.println("Livro encontrado: " + vetor.busca(posicaoPesquisar));
+                    }
                     break;
 
                 case 3:
-                    alterar(scanner, vetor);
+                    System.out.print("Informe o ISBN do livro que deseja alterar: ");
+                    String isbnAlterar = scanner.nextLine();
+
+                    int posicaoAlterar = vetor.busca(new Livro(isbnAlterar, null, null, 0));
+
+                    if (posicaoAlterar == -1) {
+                        System.out.println("Livro não encontrado.");
+                        break;
+                    }
+
+                    System.out.print("Novo título: ");
+                    String tituloAlterar = scanner.nextLine();
+
+                    System.out.print("Novo autor: ");
+                    String autorAlterar = scanner.nextLine();
+
+                    System.out.print("Novo ano de publicação: ");
+                    int anoAlterar = scanner.nextInt();
+                    scanner.nextLine();
+
+                    vetor.remove(posicaoAlterar);
+                    vetor.adiciona(posicaoAlterar, new Livro(isbnAlterar, tituloAlterar, autorAlterar, anoAlterar));
+                    System.out.println("Livro alterado com sucesso!");
                     break;
 
                 case 4:
-                    excluir(scanner, vetor);
+                    System.out.print("Informe o ISBN do livro que deseja excluir: ");
+                    String isbnExcluir = scanner.nextLine();
+
+                    vetor.remove(new Livro(isbnExcluir, null, null, 0));
+                    System.out.println("Livro excluído com sucesso!");
                     break;
 
                 case 5:
@@ -56,108 +106,5 @@ public class Main {
         } while (opcao != 0);
 
         scanner.close();
-    }
-
-    private static void incluir(Scanner scanner, VetorObjeto vetor) {
-        System.out.print("ISBN: ");
-        String isbn = scanner.nextLine();
-
-        System.out.print("Título: ");
-        String titulo = scanner.nextLine();
-
-        System.out.print("Autor: ");
-        String autor = scanner.nextLine();
-
-        System.out.print("Ano de publicação: ");
-        int ano = lerInteiro(scanner);
-
-        Livro livro = new Livro(isbn, titulo, autor, ano);
-
-        if (vetor.busca(livro) > -1) {
-            System.out.println("Já existe um livro cadastrado com esse ISBN.");
-            return;
-        }
-
-        vetor.adiciona(livro);
-        System.out.println("Livro incluído com sucesso!");
-    }
-
-    private static void pesquisar(Scanner scanner, VetorObjeto vetor) {
-        System.out.print("Informe o ISBN do livro que deseja pesquisar: ");
-        String isbn = scanner.nextLine();
-
-        Livro chave = new Livro();
-        chave.setIsbn(isbn);
-
-        int posicao = vetor.busca(chave);
-
-        if (posicao == -1) {
-            System.out.println("Livro não encontrado.");
-        } else {
-            try {
-                System.out.println("Livro encontrado: " + vetor.busca(posicao));
-            } catch (Exception e) {
-                System.out.println("Erro ao buscar o livro: " + e.getMessage());
-            }
-        }
-    }
-
-    private static void alterar(Scanner scanner, VetorObjeto vetor) {
-        System.out.print("Informe o ISBN do livro que deseja alterar: ");
-        String isbn = scanner.nextLine();
-
-        Livro chave = new Livro();
-        chave.setIsbn(isbn);
-
-        int posicao = vetor.busca(chave);
-
-        if (posicao == -1) {
-            System.out.println("Livro não encontrado.");
-            return;
-        }
-
-        System.out.print("Novo título: ");
-        String titulo = scanner.nextLine();
-
-        System.out.print("Novo autor: ");
-        String autor = scanner.nextLine();
-
-        System.out.print("Novo ano de publicação: ");
-        int ano = lerInteiro(scanner);
-
-        Livro livroAlterado = new Livro(isbn, titulo, autor, ano);
-
-        try {
-            vetor.remove(posicao);
-            vetor.adiciona(posicao, livroAlterado);
-            System.out.println("Livro alterado com sucesso!");
-        } catch (Exception e) {
-            System.out.println("Erro ao alterar o livro: " + e.getMessage());
-        }
-    }
-
-    private static void excluir(Scanner scanner, VetorObjeto vetor) {
-        System.out.print("Informe o ISBN do livro que deseja excluir: ");
-        String isbn = scanner.nextLine();
-
-        Livro chave = new Livro();
-        chave.setIsbn(isbn);
-
-        try {
-            vetor.remove(chave);
-            System.out.println("Livro excluído com sucesso!");
-        } catch (Exception e) {
-            System.out.println("Erro ao excluir o livro: " + e.getMessage());
-        }
-    }
-
-    private static int lerInteiro(Scanner scanner) {
-        while (!scanner.hasNextInt()) {
-            System.out.print("Digite um número válido: ");
-            scanner.next();
-        }
-        int valor = scanner.nextInt();
-        scanner.nextLine();
-        return valor;
     }
 }
